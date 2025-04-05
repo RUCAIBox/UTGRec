@@ -12,7 +12,7 @@ from collections import defaultdict
 import torch
 import torch.nn.functional as F
 from torch.utils.data import Dataset
-from transformers import DataCollatorForWholeWordMask, Qwen2VLProcessor
+from transformers import DataCollatorForWholeWordMask
 from transformers.data.data_collator import tolist, _torch_collate_batch
 
 import torchvision.transforms as transforms
@@ -418,15 +418,6 @@ class Collator:
 
         inputs["code_token_indices"] = self.get_code_token_indices(inputs["input_ids"])
         pos_inputs["code_token_indices"] = self.get_code_token_indices(pos_inputs["input_ids"])
-
-        # decoder_inputs = self.dec_mask_collator(decoder_input_ids)
-        # decoder_input_ids = decoder_inputs['input_ids']
-        # decoder_attention_mask = self.get_pad_attention_mask(decoder_input_ids)
-        # decoder_labels = decoder_inputs['labels']
-        #
-        #
-        # decoder_input_images = torch.stack(decoder_input_images, dim=0)
-        # decoder_input_image_masks = torch.stack(decoder_input_image_masks, dim=0).long()
 
         decoder_inputs = self.dec_mask_collator(decoder_input_ids)
         decoder_inputs["attention_mask"] = self.get_pad_attention_mask(decoder_inputs["input_ids"])

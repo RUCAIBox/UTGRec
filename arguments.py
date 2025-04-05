@@ -71,12 +71,12 @@ class ModelArguments:
     )
 
     code_type: Optional[str] = field(
-        default="multi",
+        default="tree",
         metadata={"help": "The type of codebook. multi or tree."},
     )
 
     vq_type: Optional[str] = field(
-        default="ema",
+        default="simvq",
         metadata={"help": "The type of quantization. vq, ema or simvq."},
     )
 
@@ -94,7 +94,7 @@ class ModelArguments:
         metadata={"help": "The size of codebook."},
     )
     codebook_dim: Optional[int] = field(
-        default=256,
+        default=128,
         metadata={"help": "The dimension of codebook vector."},
     )
     sk_epsilon: Optional[float] = field(

@@ -57,8 +57,6 @@ def main():
 	set_seed(training_args.seed)
 	data_args.enc_mlm_probability = 0.0
 
-	# Set the verbosity to info of the Transformers logger (on main process only):
-	# print("Training/evaluation args %s", training_args)
 	print("Model args %s", model_args)
 	print("Data args %s", data_args)
 
@@ -128,12 +126,10 @@ def main():
 		print(f"All item number: {len(dataset)}")
 		dataloader = DataLoader(
 			dataset,
-			# batch_size=training_args.per_device_train_batch_size,
 			batch_size=16,
 			num_workers=8,
 			shuffle=False,
 			collate_fn=collator,
-			# pin_memory=True,
 		)
 
 		all_code_ids = []

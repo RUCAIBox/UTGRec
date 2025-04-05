@@ -113,7 +113,6 @@ class MMTokenizerModel(PreTrainedModel):
         self.decoder_config.num_hidden_layers = model_args.decoder_layers
         self.decoder_config._attn_implementation = "eager"
         self.decoder_config.is_decoder = False
-        # self.decoder_config.attention_dropout = 0.1
         self.decoder_config.hidden_size = model_args.decoder_hidden_size
         self.decoder_config.intermediate_size = 4 * model_args.decoder_hidden_size
         self.decoder_config.num_attention_heads = model_args.decoder_attention_heads
@@ -393,7 +392,7 @@ class MMTokenizerModel(PreTrainedModel):
         code_token_states = self.adapter_l2c(code_token_states)
         # B, code_num, _ = code_token_states.shape
 
-        if self.cl_loss_weight > 0 and self.cl_type == "latent":
+        if self.cl_loss_weight > 0:
             pos_item_states = self.encode_item(pos_inputs)
             pos_item_states = self.adapter_l2c(pos_item_states)
             cl_loss = self.calculate_cl_loss(code_token_states, pos_item_states)

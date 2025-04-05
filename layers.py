@@ -155,13 +155,8 @@ class MultiVQLayer(nn.Module):
             quant_losses.append(quant_loss)
             num_unused_codes += unused_codes
 
-        # if distributed.is_initialized() and distributed.get_rank() == 0:
-        #     # print(self.vq_layers[0].embed.weight[:100])
-        #     for loss in quant_losses:
-        #         print(loss.item())
 
         mean_quant_loss = sum(quant_losses) / len(quant_losses)
-        # sum_quant_loss = sum(quant_losses)
 
         return quantized_x.contiguous(), mean_quant_loss, num_unused_codes, code_x.contiguous()
 
@@ -561,9 +556,9 @@ class SimVQLayer(VQLayer):
 
         if self.fix_codebook:
             for param in self.embed.parameters():
-                param.requires_grad = True
-            for param in self.embed_proj.parameters():
                 param.requires_grad = False
+            for param in self.embed_proj.parameters():
+                param.requires_grad = True
 
     def get_code_embs(self):
         return self.embed_proj(self.embed.weight)
@@ -573,6 +568,7 @@ class SimVQLayer(VQLayer):
 
     def _copy_init_embed(self, init_embed):
         pass
+
 
 
 
