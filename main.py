@@ -121,14 +121,8 @@ def main():
         model, missing_keys, unexpected_keys = load_model_weight(model, model_args.model_ckpt)
         logger.info(f"Missing keys: {missing_keys}")
         logger.info(f"Unexpected keys: {unexpected_keys}")
-        if model.code_type == "multi":
-            for i in range(model.code_num):
-                model.quantizer.vq_layers[i].initted = True
-        elif model.code_type == "tree":
-            model.quantizer.root_vq_layer.initted = True
-            model.quantizer.shared_vq_layer.initted = True
-        else:
-            raise NotImplementedError
+        model.quantizer.root_vq_layer.initted = True
+        model.quantizer.shared_vq_layer.initted = True
         model.vq_warmup_steps = -1
 
 

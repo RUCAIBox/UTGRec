@@ -96,25 +96,18 @@ def main():
 
 	code_num = model.code_num
 	codebook_size = model.codebook_size
-	if model.code_type == "multi":
-		if isinstance(codebook_size, list):
-			offset = np.cumsum([0] + codebook_size).tolist()[:-1]
-		else:
-			offset = np.cumsum([0] + [codebook_size] * code_num).tolist()[:-1]
-	elif model.code_type == "tree":
-		if isinstance(codebook_size, list):
-			assert len(codebook_size) == 2
-			root_codebook_size = codebook_size[0]
-			shared_codebook_size = codebook_size[1]
-		else:
-			root_codebook_size = codebook_size
-			shared_codebook_size = codebook_size * (code_num - 1)
 
-		offset = [0] + [root_codebook_size] * (code_num - 1)
+	if isinstance(codebook_size, list):
+		assert len(codebook_size) == 2
+		root_codebook_size = codebook_size[0]
+		shared_codebook_size = codebook_size[1]
 	else:
-		raise NotImplementedError
+		root_codebook_size = codebook_size
+		shared_codebook_size = codebook_size * (code_num - 1)
 
-	print(f"Code Type: {model.code_type}, Offset: {offset}")
+	offset = [0] + [root_codebook_size] * (code_num - 1)
+
+	print(f"Offset: {offset}")
 
 	collator = Collator(data_args, tokenizer, processor, mode="test")
 

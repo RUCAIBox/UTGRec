@@ -88,7 +88,6 @@ class MMTokenizerModel(PreTrainedModel):
 
 
         # codebook
-        self.code_type = model_args.code_type
         self.code_num = model_args.code_num
         codebook_size = model_args.codebook_size.strip().split(",")
         codebook_size = [int(_) for _ in codebook_size]
@@ -416,15 +415,9 @@ class MMTokenizerModel(PreTrainedModel):
             if self.step == self.vq_warmup_steps:
                 if distributed.get_rank() == 0:
                     print("End the embedding warmup")
+                self.quantizer.root_vq_layer.initted = False
+                self.quantizer.shared_vq_layer.initted = False
 
-                if self.code_type == "multi":
-                    for i in range(self.code_num):
-                        self.quantizer.vq_layers[i].initted = False
-                elif self.code_type == "tree":
-                    self.quantizer.root_vq_layer.initted = False
-                    self.quantizer.shared_vq_layer.initted = False
-                else:
-                    raise NotImplementedError
 
             self.step += 1
         else:

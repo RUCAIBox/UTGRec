@@ -70,10 +70,6 @@ class ModelArguments:
         metadata={"help": "The weight of vq loss."},
     )
 
-    code_type: Optional[str] = field(
-        default="tree",
-        metadata={"help": "The type of codebook. multi or tree."},
-    )
 
     vq_type: Optional[str] = field(
         default="simvq",

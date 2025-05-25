@@ -35,32 +35,18 @@ class AllGatherFunction(torch.autograd.Function):
 
 def get_quantizer(model_args):
 
-    if model_args.code_type == "multi":
-        quantizer = MultiVQLayer(
-            n_codebooks=model_args.code_num,
-            codebook_size=model_args.codebook_size,
-            codebook_dim=model_args.codebook_dim,
-            vq_type=model_args.vq_type,
-            beta=model_args.beta,
-            decay=model_args.ema_decay,
-            sk_epsilon=model_args.sk_epsilon,
-            fix_codebook=model_args.fix_codebook,
-            fix_code_embs=model_args.sim_vq_fix_code_embs,
-        )
-    elif model_args.code_type == "tree":
-        quantizer = TreeVQLayer(
-            n_codebooks=model_args.code_num,
-            codebook_size=model_args.codebook_size,
-            codebook_dim=model_args.codebook_dim,
-            vq_type=model_args.vq_type,
-            beta=model_args.beta,
-            decay=model_args.ema_decay,
-            sk_epsilon=model_args.sk_epsilon,
-            fix_codebook=model_args.fix_codebook,
-            fix_code_embs=model_args.sim_vq_fix_code_embs,
-        )
-    else:
-        raise NotImplementedError("Only support multi or tree codebook.")
+
+    quantizer = TreeVQLayer(
+        n_codebooks=model_args.code_num,
+        codebook_size=model_args.codebook_size,
+        codebook_dim=model_args.codebook_dim,
+        vq_type=model_args.vq_type,
+        beta=model_args.beta,
+        decay=model_args.ema_decay,
+        sk_epsilon=model_args.sk_epsilon,
+        fix_codebook=model_args.fix_codebook,
+        fix_code_embs=model_args.sim_vq_fix_code_embs,
+    )
 
     return quantizer
 
@@ -94,76 +80,6 @@ class MLPLayers(nn.Module):
     def forward(self, x):
         return self.mlp_layers(x)
 
-
-
-
-
-
-
-
-class MultiVQLayer(nn.Module):
-
-    def __init__(self,  n_codebooks, codebook_size, codebook_dim,
-                 beta=0.25, vq_type="ema", sk_epsilon=-1, fix_codebook=False, decay=0.99, fix_code_embs=False):
-        super(MultiVQLayer, self).__init__()
-
-        self.n_codebooks = n_codebooks
-
-        if isinstance(codebook_size, int):
-            self.codebook_sizes = [codebook_size] * n_codebooks
-        elif isinstance(codebook_size, list):
-            if len(codebook_size) == n_codebooks:
-                self.codebook_sizes = codebook_size
-            else:
-                raise ValueError("codebook_size must be an int or a list of int with length equal to n_codebooks")
-
-
-
-        if vq_type=="vq": # codebook_size, codebook_dim, beta = 0.25, sk_epsilon = -1, fix_codebook = False
-            self.vq_layers = nn.ModuleList([
-                VQLayer(codebook_size=codebook_size, codebook_dim=codebook_dim, beta=beta, sk_epsilon=sk_epsilon, fix_codebook=fix_codebook)
-                for codebook_size in self.codebook_sizes
-            ])
-        elif vq_type=="ema": # codebook_size, codebook_dim, beta=0.25, sk_epsilon=-1, fix_codebook=False, decay=0.99
-            self.vq_layers = nn.ModuleList([
-                EMAVQLayer(codebook_size=codebook_size, codebook_dim=codebook_dim, beta=beta, sk_epsilon=sk_epsilon, fix_codebook=fix_codebook, decay=decay)
-                for codebook_size in self.codebook_sizes
-            ])
-        elif vq_type == "simvq": # codebook_size, codebook_dim, beta=0.25, sk_epsilon=-1, fix_codebook=False, fix_code_embs=False
-            self.vq_layers = nn.ModuleList([
-                SimVQLayer(codebook_size=codebook_size, codebook_dim=codebook_dim, beta=beta, sk_epsilon=sk_epsilon, fix_codebook=fix_codebook, fix_code_embs=fix_code_embs)
-                for codebook_size in self.codebook_sizes
-            ])
-        else:
-            raise NotImplementedError("Only support vq, ema or simvq quantization.")
-
-    def forward(self, x: torch.Tensor):
-
-        batch_size, code_num, _ = x.shape
-        assert code_num <= self.n_codebooks
-
-        quantized_x = torch.zeros_like(x)
-        code_x = torch.zeros(batch_size, code_num, device=x.device)
-        quant_losses = []
-        num_unused_codes = 0
-
-        for vq_layer, level in zip(self.vq_layers, range(self.n_codebooks)):
-            quant, quant_loss, unused_codes, codes = vq_layer(x[:,level])
-            quantized_x[:, level] = quant
-            code_x[:, level] = codes
-
-            quant_losses.append(quant_loss)
-            num_unused_codes += unused_codes
-
-
-        mean_quant_loss = sum(quant_losses) / len(quant_losses)
-
-        return quantized_x.contiguous(), mean_quant_loss, num_unused_codes, code_x.contiguous()
-
-
-    def get_topk_tail_token(self, x, topk=1, used=False):
-
-        return self.vq_layers[-1].get_topk_tail_token(x, topk, used)
 
 
 
