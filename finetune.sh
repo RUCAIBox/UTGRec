@@ -67,7 +67,6 @@ torchrun --node_rank=$NODE_RANK --nnodes=$NNODES --nproc_per_node=$NUM_GPUS \
 
 
 if [ "$NODE_RANK" -eq 0 ]; then
-    # 将 BX 的值写入缓存文件
     echo "$OUTPUT_DIR" > output_dir_cache.txt
     echo "Writting OUTPUT_DIR"
 else
