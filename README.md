@@ -22,6 +22,22 @@ flash-attn==2.6.3
 
 VAE checkpoint for DiffLoss:  [download.py](https://github.com/LTH14/mar/blob/main/util/download.py)
 
+## Data
+
+You can find all the datasets we used in [Google Drive](https://drive.google.com/file/d/16dkTf-Pe0fpF3IyuBtRg8p3EF1k5E0kz/view?usp=sharing). Please download the file to the `data/` folder and unzip it. Then, run the following command to download item images:
+
+```shell
+cd data
+
+all_data=(Musical_Instruments Industrial_and_Scientific Video_Games Office_Products Arts_Crafts_and_Sewing Baby_Products CDs_and_Vinyl Cell_Phones_and_Accessories Software)
+
+for data in "${all_data[@]}"; do
+		python mm_data_download.py --dataset ${data}
+done
+```
+
+Please note that some request errors may occur during the download process. To ensure that all images are successfully downloaded, you may need to run the above command multiple times. Files that have already been downloaded will not be downloaded again.
+
 ## Script
 
 Pre-training: `pretrain.sh`
