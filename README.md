@@ -32,7 +32,7 @@ cd data
 all_data=(Musical_Instruments Industrial_and_Scientific Video_Games Office_Products Arts_Crafts_and_Sewing Baby_Products CDs_and_Vinyl Cell_Phones_and_Accessories Software)
 
 for data in "${all_data[@]}"; do
-		python mm_data_download.py --dataset ${data}
+	python mm_data_download.py --dataset ${data}
 done
 ```
 
